@@ -69,21 +69,7 @@ typedef struct _STREAM_CONFIGURATION {
     // Specifies the channel configuration of the audio stream.
     // See AUDIO_CONFIGURATION constants and MAKE_AUDIO_CONFIGURATION() below.
     int audioConfiguration;
-	
-	// Specifies that the client can accept an H.265 video stream
-    // if the server is able to provide one.
-    bool supportsHevc;
 
-    // Specifies that the client is requesting an HDR H.265 video stream.
-    //
-    // This should only be set if:
-    // 1) The client decoder supports HEVC Main10 profile (supportsHevc must be set too)
-    // 2) The server has support for HDR as indicated by ServerCodecModeSupport in /serverinfo
-    //
-    // See ConnListenerSetHdrMode() for a callback to indicate when to set
-    // the client display into HDR mode.
-    bool enableHdr;
-    
     // Specifies the mask of supported video formats.
     // See VIDEO_FORMAT constants below.
     int supportedVideoFormats;
@@ -483,6 +469,13 @@ typedef void(*ConnListenerRumbleTriggers)(uint16_t controllerNumber, uint16_t le
 // If reportRateHz is 0, the host is asking for motion event reporting to stop.
 typedef void(*ConnListenerSetMotionEventState)(uint16_t controllerNumber, uint8_t motionType, uint16_t reportRateHz);
 
+// This callback is invoked to notify the client of a change in the dualsense
+// adaptive trigger configuration.
+#define DS_EFFECT_PAYLOAD_SIZE 10
+#define DS_EFFECT_RIGHT_TRIGGER 0x04
+#define DS_EFFECT_LEFT_TRIGGER 0x08
+typedef void(*ConnListenerSetAdaptiveTriggers)(uint16_t controllerNumber, uint8_t eventFlags, uint8_t typeLeft, uint8_t typeRight, uint8_t *left, uint8_t *right);
+
 // This callback is invoked to set a controller's RGB LED (if present).
 typedef void(*ConnListenerSetControllerLED)(uint16_t controllerNumber, uint8_t r, uint8_t g, uint8_t b);
 
@@ -499,6 +492,7 @@ typedef struct _CONNECTION_LISTENER_CALLBACKS {
     ConnListenerRumbleTriggers rumbleTriggers;
     ConnListenerSetMotionEventState setMotionEventState;
     ConnListenerSetControllerLED setControllerLED;
+    ConnListenerSetAdaptiveTriggers setAdaptiveTriggers;
 } CONNECTION_LISTENER_CALLBACKS, *PCONNECTION_LISTENER_CALLBACKS;
 
 // Use this function to zero the connection callbacks when allocated on the stack or heap
@@ -526,10 +520,10 @@ void LiInitializeConnectionCallbacks(PCONNECTION_LISTENER_CALLBACKS clCallbacks)
 typedef struct _SERVER_INFORMATION {
     // Server host name or IP address in text form
     const char* address;
-    
+
     // Text inside 'appversion' tag in /serverinfo
     const char* serverInfoAppVersion;
-    
+
     // Text inside 'GfeVersion' tag in /serverinfo (if present)
     const char* serverInfoGfeVersion;
 
