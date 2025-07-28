@@ -203,8 +203,8 @@ bool audioSync, bool hdrEnabled, std::string codecVideo, std::string serverCodec
   m_StreamConfig.audioConfiguration = AUDIO_CONFIGURATION_STEREO;
   m_StreamConfig.streamingRemotely = STREAM_CFG_AUTO;
   m_StreamConfig.packetSize = 1392;
-  m_StreamConfig.supportsHevc = true;
-  m_StreamConfig.enableHdr = hdrEnabled;
+  // m_StreamConfig.supportsHevc = true;
+  // m_StreamConfig.enableHdr = hdrEnabled;
   m_StreamConfig.supportedVideoFormats = stoi(codecVideo,0,16); 
 
   // Load the rikey and rikeyid into the stream configuration
